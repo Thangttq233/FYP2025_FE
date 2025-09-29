@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { adminhApi } from "./api";
 import type { CategoryDto } from "@/types/categories";
-import type { ProductDto } from "@/types/product";
+import {  type ProductDto } from "@/types/product";
 import { toast } from "sonner";
 import {
   Tooltip,
@@ -26,6 +26,7 @@ const AdminProducts: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+
   const fetchData = async () => {
     try {
       const prodRes: ProductDto[] = await adminhApi.getAllProdct();
@@ -40,6 +41,8 @@ const AdminProducts: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  
 
   const handleDelete = async (id: string) => {
     try {
@@ -59,6 +62,7 @@ const AdminProducts: React.FC = () => {
     try {
       setIsLoading(true);
       await adminhApi.createProduct(fd);
+      console.log(fd);
       await fetchData();
       toast.success("Thêm sản phẩm thành công!");
       setOpen(false);
