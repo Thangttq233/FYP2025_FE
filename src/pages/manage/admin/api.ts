@@ -2,7 +2,7 @@ import api from "@/lib/axios";
 
 
 export const adminhApi = {
-    getAllProdct: async () => {
+    getAllProduct: async () => {
         const res = await api.get('/api/products');
         return res.data;
     },
@@ -16,8 +16,12 @@ export const adminhApi = {
         return res.data;
     },
 
-    updateProduct: async (id: string, payload: any) => {
-        const res = await api.put(`/api/products/${id}`, payload);
+    updateProduct: async (id: string, payload: FormData) => {
+        const res = await api.put(`/api/products/${id}`, payload, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
         return res.data;
     },
 

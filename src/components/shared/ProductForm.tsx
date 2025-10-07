@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { CategoryDto } from "@/types/categories";
-import type { ProductDto } from "@/types/product";
+import type { ProductDto, ProductVariantDto } from "@/types/product";
 
 interface ProductFormProps {
   initialData?: ProductDto;
@@ -36,87 +36,110 @@ const ProductForm: React.FC<ProductFormProps> = ({
   });
 
   const [variantForm, setVariantForm] = useState<any>({
+    id: "",
     color: "",
     size: "",
     price: 0,
     stockQuantity: 0,
     imageFile: null as File | null,
+    imageUrl: "",
   });
 
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const variantFileRef = useRef<HTMLInputElement | null>(null);
 
-  const handleAddVariant = () => {
+  // ✅ Click vào variant để load dữ liệu lên form
+  const handleSelectVariant = (variant: ProductVariantDto, index: number) => {
+    setVariantForm({
+      id: variant.id || "",
+    color: variant.color || "",
+    size: variant.size || "",
+    price: variant.price || 0,
+    stockQuantity: variant.stockQuantity || 0,
+    imageFile: null,
+    imageUrl: variant.imageUrl || "",
+    });
+    setEditingIndex(index);
+  };
+
+  // ✅ Thêm hoặc cập nhật variant
+  const handleAddOrUpdateVariant = () => {
     if (!variantForm.color || !variantForm.size) {
       alert("Vui lòng nhập đủ thông tin biến thể");
       return;
     }
+
+    const updatedVariants = [...formData.variants];
+
+    if (editingIndex !== null) {
+      // Cập nhật
+      updatedVariants[editingIndex] = { ...variantForm };
+      setEditingIndex(null);
+    } else {
+      // Thêm mới
+      updatedVariants.push({ ...variantForm });
+    }
+
     setFormData({
       ...formData,
-      variants: [...formData.variants, { ...variantForm }],
+      variants: updatedVariants,
     });
 
+    // Reset form variant
     setVariantForm({
+      id: "",
       color: "",
       size: "",
       price: 0,
       stockQuantity: 0,
       imageFile: null,
+      imageUrl: "",
     });
-
-    if (variantFileRef.current) {
-      variantFileRef.current.value = "";
-    }
+    if (variantFileRef.current) variantFileRef.current.value = "";
   };
 
+  // ✅ Reset form variant (nút "Thêm mới")
+  const handleResetVariantForm = () => {
+    setEditingIndex(null);
+    setVariantForm({
+      id: "",
+      color: "",
+      size: "",
+      price: 0,
+      stockQuantity: 0,
+      imageFile: null,
+      imageUrl: "",
+    });
+    if (variantFileRef.current) variantFileRef.current.value = "";
+  };
+
+  // ✅ Xử lý submit
   const handleSubmit = async () => {
-    // validate product
     if (!formData.name || !formData.categoryId) {
       alert("Vui lòng nhập tên sản phẩm và chọn danh mục");
       return;
     }
 
-    if (!formData.imageFile) {
-      alert("Vui lòng chọn ảnh sản phẩm");
-      return;
-    }
-
-    // validate variants
-    for (const variant of formData.variants) {
-      if (!variant.color || !variant.size) {
-        alert("Mỗi phiên bản phải có màu và size");
-        return;
-      }
-      if (variant.price <= 0) {
-        alert("Giá của phiên bản phải lớn hơn 0");
-        return;
-      }
-      if (variant.stockQuantity < 0) {
-        alert("Số lượng tồn kho không hợp lệ");
-        return;
-      }
-    }
     const fd = new FormData();
     fd.append("Name", formData.name);
     fd.append("Description", formData.description);
     fd.append("CategoryId", formData.categoryId);
 
     const category = categories.find((c) => c.id === formData.categoryId);
-    if (category) {
-      fd.append("CategoryName", category.name);
-    }
+    if (category) fd.append("CategoryName", category.name);
 
-    if (formData.imageFile) {
-      fd.append("ImageFile", formData.imageFile);
-    }
+    if (formData.imageFile) fd.append("ImageFile", formData.imageFile);
 
     formData.variants.forEach((v: any, index: number) => {
+      if (v.id) fd.append(`Variants[${index}].Id`, v.id);
       fd.append(`Variants[${index}].Color`, v.color);
       fd.append(`Variants[${index}].Size`, v.size);
       fd.append(`Variants[${index}].Price`, String(v.price));
       fd.append(`Variants[${index}].StockQuantity`, String(v.stockQuantity));
-      if (v.imageFile) {
+      if (v.imageFile)
         fd.append(`Variants[${index}].ImageFile`, v.imageFile);
-      }
+      else if (v.imageUrl)
+        fd.append(`Variants[${index}].ImageUrl`, v.imageUrl);
     });
 
     await onSubmit(fd);
@@ -147,10 +170,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
         <div>
           <Label>Danh mục</Label>
           <Select
-            onValueChange={(value: any) =>
+            value={formData.categoryId}
+            onValueChange={(value) =>
               setFormData({ ...formData, categoryId: value })
             }
-            value={formData.categoryId}
           >
             <SelectTrigger>
               <SelectValue placeholder="Chọn danh mục" />
@@ -181,7 +204,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
       {/* Biến thể sản phẩm */}
       <div className="space-y-4 border-l pl-4">
-        <h3 className="font-semibold">Thêm phiên bản</h3>
+        <h3 className="font-semibold">
+          {editingIndex !== null ? "Chỉnh sửa phiên bản" : "Thêm phiên bản"}
+        </h3>
 
         <div>
           <Label>Màu sắc</Label>
@@ -243,16 +268,45 @@ const ProductForm: React.FC<ProductFormProps> = ({
               })
             }
           />
+          {variantForm.imageUrl && (
+            <img
+              src={variantForm.imageUrl}
+              alt="Variant Preview"
+              className="w-20 h-20 object-cover mt-2 rounded"
+            />
+          )}
         </div>
 
-        <Button variant="outline" onClick={handleAddVariant}>
-          Thêm phiên bản
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleAddOrUpdateVariant}>
+            {editingIndex !== null ? "Cập nhật phiên bản" : "Thêm phiên bản"}
+          </Button>
+          <Button variant="secondary" onClick={handleResetVariantForm}>
+            Thêm mới
+          </Button>
+        </div>
 
         <ul className="space-y-1 mt-2">
           {formData.variants.map((v: any, idx: number) => (
-            <li key={idx} className="text-sm border p-1 rounded">
-              {v.color} - {v.size} | {v.price}₫ | SL: {v.stockQuantity}
+            <li
+              key={idx}
+              onClick={() => handleSelectVariant(v, idx)}
+              className={`text-sm border p-1 rounded cursor-pointer hover:bg-gray-100 ${
+                editingIndex === idx ? "bg-blue-50 border-blue-400" : ""
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                {v.imageUrl && (
+                  <img
+                    src={v.imageUrl}
+                    alt={v.color}
+                    className="w-8 h-8 object-cover rounded"
+                  />
+                )}
+                <span>
+                  {v.color} - {v.size} | {v.price}₫ | SL: {v.stockQuantity}
+                </span>
+              </div>
             </li>
           ))}
         </ul>

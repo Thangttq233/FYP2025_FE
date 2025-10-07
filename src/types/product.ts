@@ -42,10 +42,12 @@ export interface CreateProductDto {
 
 // Request update variant
 export interface UpdateProductVariantDto {
+    id: string;
     color: string;
     size: string;
     price: number;
     stockQuantity: number;
+    imageFile: File;
 }
 
 // Request update sản phẩm

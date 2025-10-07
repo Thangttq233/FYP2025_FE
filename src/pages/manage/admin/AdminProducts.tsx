@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { adminhApi } from "./api";
 import type { CategoryDto } from "@/types/categories";
-import {  type ProductDto } from "@/types/product";
+import { type ProductDto } from "@/types/product";
 import { toast } from "sonner";
 import {
   Tooltip,
@@ -23,13 +23,13 @@ const AdminProducts: React.FC = () => {
   const [products, setProducts] = useState<ProductDto[]>([]);
   const [categories, setCategories] = useState<CategoryDto[]>([]);
   const [open, setOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-
+  const [editingProduct, setEditingProduct] = useState<ProductDto | null>(null);
 
   const fetchData = async () => {
     try {
-      const prodRes: ProductDto[] = await adminhApi.getAllProdct();
+      const prodRes: ProductDto[] = await adminhApi.getAllProduct();
       const catRes: CategoryDto[] = await adminhApi.getCategories();
       setProducts(prodRes || []);
       setCategories(catRes || []);
@@ -41,8 +41,6 @@ const AdminProducts: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, []);
-
-  
 
   const handleDelete = async (id: string) => {
     try {
@@ -60,9 +58,8 @@ const AdminProducts: React.FC = () => {
 
   const handleAddProduct = async (fd: FormData) => {
     try {
-      setIsLoading(true);
+      setIsSubmitting(true);
       await adminhApi.createProduct(fd);
-      console.log(fd);
       await fetchData();
       toast.success("Thêm sản phẩm thành công!");
       setOpen(false);
@@ -70,7 +67,24 @@ const AdminProducts: React.FC = () => {
       console.error("Failed to create product:", err);
       toast.error("Có lỗi khi thêm sản phẩm!");
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdateProduct = async (fd: FormData) => {
+    if (!editingProduct) return;
+
+    try {
+      setIsSubmitting(true);
+      await adminhApi.updateProduct(editingProduct.id, fd);
+      await fetchData();
+      toast.success("Cập nhật sản phẩm thành công!");
+      setEditingProduct(null);
+    } catch (err) {
+      console.error("Failed to update product:", err);
+      toast.error("Có lỗi khi cập nhật sản phẩm!");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -93,7 +107,27 @@ const AdminProducts: React.FC = () => {
               categories={categories}
               onSubmit={handleAddProduct}
               onCancel={() => setOpen(false)}
-              isLoading={isLoading}
+              isLoading={isSubmitting}
+            />
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Product Dialog */}
+        <Dialog
+          open={!!editingProduct}
+          onOpenChange={(isOpen) => !isOpen && setEditingProduct(null)}
+        >
+          <DialogContent className="!max-w-[70vw] w-full h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Chỉnh sửa sản phẩm</DialogTitle>
+            </DialogHeader>
+
+            <ProductForm
+              initialData={editingProduct!}
+              categories={categories}
+              onSubmit={handleUpdateProduct}
+              onCancel={() => setEditingProduct(null)}
+              isLoading={isSubmitting}
             />
           </DialogContent>
         </Dialog>
@@ -132,7 +166,7 @@ const AdminProducts: React.FC = () => {
                         <li key={v.id}>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <div className="border rounded flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1">
+                              <div className="border rounded flex items-center gap-2 cursor-pointer hover:bg-gray-10a-100 p-1">
                                 {v.imageUrl && (
                                   <img
                                     src={v.imageUrl}
@@ -174,7 +208,9 @@ const AdminProducts: React.FC = () => {
                     </ul>
                   </td>
                   <td className="border p-2 text-center space-x-2">
-                    <Button size="sm">Chỉnh sửa</Button>
+                    <Button size="sm" onClick={() => setEditingProduct(p)}>
+                      Chỉnh sửa
+                    </Button>
                     <Button
                       size="sm"
                       variant="destructive"
