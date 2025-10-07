@@ -28,7 +28,7 @@ export interface CreateProductVariantDto {
     size: string;
     price: number;
     stockQuantity: number;
-    imageFile: File; // IFormFile => FE sẽ dùng File
+    imageFile: File; 
 }
 
 // Request khi tạo sản phẩm mới
@@ -36,16 +36,18 @@ export interface CreateProductDto {
     name: string;
     description: string;
     categoryId: string;
-    imageFile: File; // IFormFile => FE sẽ dùng File
+    imageFile: File; 
     variants: CreateProductVariantDto[];
 }
 
 // Request update variant
 export interface UpdateProductVariantDto {
+    id: string;
     color: string;
     size: string;
     price: number;
     stockQuantity: number;
+    imageFile: File;
 }
 
 // Request update sản phẩm
@@ -53,6 +55,6 @@ export interface UpdateProductDto {
     name: string;
     description: string;
     categoryId: string;
-    imageUrl: string;
+    imageFile: File;
     variants: UpdateProductVariantDto[];
 }

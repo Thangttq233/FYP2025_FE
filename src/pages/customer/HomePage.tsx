@@ -6,77 +6,46 @@ import {
   ShieldCheck,
   Phone,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { getProducts } from "../customer/api";
+import type { ProductDto } from "../../types/product";
 
-const sampleProducts = [
-  {
-    id: 1,
-    name: "Áo Sơ Mi Nam Oxford Tay Dài Form Regular",
-    price: "489.000đ",
-    originalPrice: "599.000đ",
-    imageUrl:
-      "https://images.pexels.com/photos/2955375/pexels-photo-2955375.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    isNew: true,
-  },
-  {
-    id: 2,
-    name: "Quần Jeans Nam Slimfit Wash Rách",
-    price: "549.000đ",
-    originalPrice: "",
-    imageUrl:
-      "https://images.pexels.com/photos/1598507/pexels-photo-1598507.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-  },
-  {
-    id: 3,
-    name: "Áo Thun Nam Cổ Tròn In Họa Tiết",
-    price: "299.000đ",
-    originalPrice: "350.000đ",
-    imageUrl:
-      "https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-  },
-  {
-    id: 4,
-    name: "Giày Sneaker Nam Da Bò Thật",
-    price: "1.299.000đ",
-    originalPrice: "",
-    imageUrl:
-      "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    isNew: true,
-  },
-];
+const ProductCard = ({ product }: { product: ProductDto }) => {
+  const hasVariants = product.variants && product.variants.length > 0;
 
-const ProductCard = ({ product }: { product: (typeof sampleProducts)[0] }) => (
-  <div className="group">
-    <div className="relative overflow-hidden aspect-[3/4] bg-gray-100 rounded-md">
-      <img
-        src={product.imageUrl}
-        alt={product.name}
-        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-      />
-      {product.isNew && (
-        <span className="absolute top-3 left-3 bg-blue-500 text-white text-xs px-2 py-1 rounded-sm">
-          NEW
-        </span>
-      )}
-      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-40 text-white p-2 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
-        <ShoppingCart className="h-5 w-5 mr-2" />
-        Thêm vào giỏ hàng
+  let priceDisplay = "Liên hệ";
+  if (hasVariants) {
+    const prices = product.variants.map((v) => v.price);
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    priceDisplay =
+      minPrice === maxPrice
+        ? `${minPrice.toLocaleString()}đ`
+        : `${minPrice.toLocaleString()}đ - ${maxPrice.toLocaleString()}đ`;
+  }
+
+  return (
+    <div className="group">
+      <div className="relative overflow-hidden aspect-[3/4] bg-gray-100 rounded-md">
+        <img
+          src={product.imageUrl}
+          alt={product.name}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-40 text-white p-2 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
+          <ShoppingCart className="h-5 w-5 mr-2" />
+          Thêm vào giỏ hàng
+        </div>
+      </div>
+      <div className="p-4 text-center">
+        <h3 className="text-sm font-semibold text-gray-800 mb-1 h-10">
+          {product.name}
+        </h3>
+        <p className="text-red-500 font-bold">{priceDisplay}</p>
       </div>
     </div>
-    <div className="p-4 text-center">
-      <h3 className="text-sm font-semibold text-gray-800 mb-1 h-10">
-        {product.name}
-      </h3>
-      <div className="flex justify-center items-baseline space-x-2">
-        <p className="text-red-500 font-bold">{product.price}</p>
-        {product.originalPrice && (
-          <p className="text-gray-500 line-through text-sm">
-            {product.originalPrice}
-          </p>
-        )}
-      </div>
-    </div>
-  </div>
-);
+  );
+};
 
 const SectionHeader = ({
   title,
@@ -154,6 +123,20 @@ const PolicySection = () => (
 );
 
 const HomePage = () => {
+  const [products, setProducts] = useState<ProductDto[]>([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await getProducts();
+        setProducts(data);
+      } catch (err) {
+        console.error("Lỗi load sản phẩm:", err);
+      }
+    };
+    fetchProducts();
+  }, []);
+
   return (
     <main>
       <HeroSection />
@@ -161,7 +144,7 @@ const HomePage = () => {
       <section className="container mx-auto px-4 my-12">
         <SectionHeader title="Sản phẩm nổi bật" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-8">
-          {sampleProducts.map((product) => (
+          {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
@@ -180,12 +163,9 @@ const HomePage = () => {
       <section className="container mx-auto px-4 my-12">
         <SectionHeader title="Hàng mới về" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-8">
-          {sampleProducts
-            .slice(0, 4)
-            .reverse()
-            .map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+          {products.slice(0, 4).reverse().map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
       </section>
 
