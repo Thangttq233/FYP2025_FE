@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react"; 
 import {
   Search,
   User,
@@ -11,29 +11,80 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
+import { customerApi } from "@/pages/customer/api";
+import { MainCategoryType, type CategoryDto } from "@/types/categories";
 
-const NavItem = ({
-  label,
-  hasDropdown = false,
-}: {
-  label: string;
-  hasDropdown?: boolean;
-}) => (
-  <a
-    href="#"
-    className="flex items-center text-gray-800 hover:text-blue-600 transition-colors duration-300 group"
-  >
-    {label}
-    {hasDropdown && (
-      <ChevronDown className="ml-1 h-4 w-4 transform transition-transform duration-300 group-hover:rotate-180" />
-    )}
-  </a>
-);
+
+const mainCategoryMap: { [key: string]: MainCategoryType } = {
+  "HÀNG MỚI": MainCategoryType.HangMoi,
+  "ÁO NAM": MainCategoryType.AoNam,
+  "QUẦN NAM": MainCategoryType.QuanNam,
+  "GIÀY DÉP": MainCategoryType.GiayDep,
+  "PHỤ KIỆN": MainCategoryType.PhuKien,
+  "QUÀ TẶNG": MainCategoryType.QuaTang,
+  "X-TECH": MainCategoryType.XTech,
+  "ƯU ĐÃI": MainCategoryType.UuDai,
+};
+
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const { auth } = useAuthStore();
+
+
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [allCategories, setAllCategories] = useState<CategoryDto[]>([]);
+  const navRef = useRef<HTMLElement>(null); // Dùng để đóng dropdown khi click ra ngoài
+
+  // Lấy dữ liệu categories từ API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await customerApi.getCategories();
+        setAllCategories(categories);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Xử lý đóng dropdown khi click ra ngoài component
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, []);
+
+  // Nhóm các categories lại để dễ dàng hiển thị
+  const groupedCategories = useMemo(() => {
+    const groups: { [key: string]: CategoryDto[] } = {};
+    allCategories.forEach((category) => {
+      const mainCategoryLabel = Object.keys(mainCategoryMap).find(
+        (key) => mainCategoryMap[key] === category.mainCategory
+      );
+      if (mainCategoryLabel) {
+        if (!groups[mainCategoryLabel]) {
+          groups[mainCategoryLabel] = [];
+        }
+        groups[mainCategoryLabel].push(category);
+      }
+    });
+    return groups;
+  }, [allCategories]);
+
+  // Hàm bật/tắt dropdown
+  const handleNavToggle = (label: string) => {
+    setOpenDropdown(openDropdown === label ? null : label);
+  };
+
 
   useEffect(() => {
     setIsLogin(auth !== null);
@@ -51,7 +102,8 @@ const Navbar = () => {
   ];
 
   return (
-    <header className="bg-white shadow-md">
+
+    <header className="bg-white shadow-md" ref={navRef}>
       <div className="bg-gray-900 text-white text-xs py-2">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <div className="flex items-center space-x-4">
@@ -81,18 +133,53 @@ const Navbar = () => {
       <nav className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           <div className="flex-shrink-0">
-            <a href="#">LOGO</a>
+            <Link to="/">LOGO</Link> 
           </div>
 
+
           <div className="hidden lg:flex lg:items-center lg:space-x-8 font-semibold">
-            {navItems.map((item, idx) => (
-              <NavItem
-                key={idx}
-                label={item.label}
-                hasDropdown={item.hasDropdown}
-              />
+            {navItems.map((item) => (
+              <div key={item.label} className="relative">
+ 
+                <button
+                  onClick={() => item.hasDropdown && handleNavToggle(item.label)}
+                  className="flex items-center text-gray-800 hover:text-blue-600 transition-colors duration-300 group"
+                >
+                  {item.label}
+                  {item.hasDropdown && (
+                    <ChevronDown
+                      className={`ml-1 h-4 w-4 transform transition-transform duration-300 ${
+                        openDropdown === item.label ? "rotate-180" : ""
+                      }`}
+                    />
+                  )}
+                </button>
+
+                {/* Phần hiển thị dropdown */}
+                {item.hasDropdown && openDropdown === item.label && (
+                  <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-50">
+                    {groupedCategories[item.label]?.length > 0 ? (
+                      groupedCategories[item.label].map((category) => (
+                        <Link
+                          key={category.id}
+                          to={`/category/${category.id}`}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                          onClick={() => setOpenDropdown(null)} 
+                        >
+                          {category.name}
+                        </Link>
+                      ))
+                    ) : (
+                      <span className="block px-4 py-2 text-sm text-gray-500">
+                        Không có danh mục.
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
+
 
           <div className="flex items-center space-x-4">
             <div className="hidden md:flex items-center border rounded-full px-3 py-1.5">
@@ -130,6 +217,7 @@ const Navbar = () => {
           </div>
         </div>
       </nav>
+      
 
       {isMenuOpen && (
         <div className="lg:hidden bg-white border-t">

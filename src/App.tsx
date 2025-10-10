@@ -16,6 +16,7 @@ import AdminUsers from "./pages/manage/admin/AdminUsers";
 import AdminCategories from "./pages/manage/admin/AdminCategories";
 // import CustomerDetailProduct from "@/pages/customer/CustomerDetailProduct";
 import CustomerProducts from "@/pages/customer/CustomerProducts";
+import CategoryProductsPage from './pages/customer/CategoryProductsPage';
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,11 @@ const router = createBrowserRouter([
           {
             path: "products",
             element: <CustomerProducts />,
+          },
+          // 👇 ROUTE MỚI ĐƯỢC THÊM VÀO ĐÂY
+          {
+            path: "category/:categoryId",
+            element: <CategoryProductsPage />,
           },
         ],
       },
