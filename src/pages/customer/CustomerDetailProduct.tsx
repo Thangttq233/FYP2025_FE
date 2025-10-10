@@ -1,18 +1,22 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { customerApi } from './api';
 import type { ProductDto, ProductVariantDto } from '@/types/product';
-import { ShoppingCart, Check, Star } from 'lucide-react';
+import { ShoppingCart, Check } from 'lucide-react';
+import { useAuthStore } from '@/stores/authStore';
 
 const CustomerDetailProduct = () => {
   const { id } = useParams<{ id: string }>();
-  
+  const navigate = useNavigate();
+  const { auth } = useAuthStore();
+
   const [product, setProduct] = useState<ProductDto | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariantDto | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+
   // Lấy dữ liệu sản phẩm từ API
   useEffect(() => {
     if (!id) return;
@@ -23,7 +27,6 @@ const CustomerDetailProduct = () => {
       try {
         const data = await customerApi.detailProduct(id);
         setProduct(data);
-        // Mặc định chọn biến thể đầu tiên
         if (data && data.variants.length > 0) {
           setSelectedVariant(data.variants[0]);
         }
@@ -38,15 +41,12 @@ const CustomerDetailProduct = () => {
     fetchProduct();
   }, [id]);
 
-  // Lấy danh sách các màu và size duy nhất từ các biến thể
   const uniqueColors = product ? [...new Set(product.variants.map(v => v.color))] : [];
   const uniqueSizes = product ? [...new Set(product.variants.map(v => v.size))] : [];
 
   const handleColorChange = (color: string) => {
-    // Tìm biến thể đầu tiên có màu này và size đang được chọn (nếu có)
     const currentSize = selectedVariant?.size;
     let newVariant = product?.variants.find(v => v.color === color && v.size === currentSize);
-    // Nếu không tìm thấy, chọn biến thể đầu tiên có màu này
     if (!newVariant) {
         newVariant = product?.variants.find(v => v.color === color);
     }
@@ -73,16 +73,32 @@ const CustomerDetailProduct = () => {
     }
   };
 
-  const handleAddToCart = () => {
-    if (!selectedVariant) return;
-    console.log({
-        productId: product?.id,
-        variantId: selectedVariant.id,
+  const handleAddToCart = async () => {
+    if (!auth) {
+      navigate('/login');
+      return;
+    }
+
+    if (!selectedVariant || isAddingToCart) return;
+
+    setIsAddingToCart(true);
+    try {
+      const itemToAdd = {
+        productVariantId: selectedVariant.id,
         quantity: quantity,
-        price: selectedVariant.price
-    });
-    // TODO: Thêm logic gọi API để thêm vào giỏ hàng
-    alert(`Đã thêm ${quantity} sản phẩm "${product?.name} - ${selectedVariant.color} - ${selectedVariant.size}" vào giỏ hàng!`);
+      };
+      
+      await customerApi.addItemToCart(itemToAdd);
+
+      alert(`Đã thêm ${quantity} sản phẩm "${product?.name} - ${selectedVariant.color} - ${selectedVariant.size}" vào giỏ hàng!`);
+      // TODO: Cập nhật số lượng trên icon giỏ hàng ở Navbar
+      
+    } catch (err: any) {
+      console.error("Lỗi khi thêm vào giỏ hàng:", err);
+      alert(err.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại.");
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   if (isLoading) {
@@ -188,11 +204,11 @@ const CustomerDetailProduct = () => {
           {/* Nút thêm vào giỏ hàng */}
           <button
             onClick={handleAddToCart}
-            disabled={!selectedVariant || selectedVariant.stockQuantity < 1}
+            disabled={!selectedVariant || selectedVariant.stockQuantity < 1 || isAddingToCart}
             className="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             <ShoppingCart size={20} />
-            Thêm vào giỏ hàng
+            {isAddingToCart ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
           </button>
         </div>
       </div>

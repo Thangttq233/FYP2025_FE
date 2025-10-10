@@ -17,6 +17,9 @@ import AdminCategories from "./pages/manage/admin/AdminCategories";
 import CustomerDetailProduct from "@/pages/customer/CustomerDetailProduct";
 import CustomerProducts from "@/pages/customer/CustomerProducts";
 import CategoryProductsPage from './pages/customer/CategoryProductsPage';
+import CartPage from "./pages/customer/CartPage";
+import CheckoutPage from "./pages/customer/CheckoutPage";
+import OrderSuccessPage from "./pages/customer/OrderSuccessPage";
 
 const router = createBrowserRouter([
   {
@@ -49,10 +52,33 @@ const router = createBrowserRouter([
             path: "products",
             element: <CustomerProducts />,
           },
-          // 👇 ROUTE MỚI ĐƯỢC THÊM VÀO ĐÂY
           {
             path: "category/:categoryId",
             element: <CategoryProductsPage />,
+          },        
+          {
+            path: "cart",
+            element: (
+              <ProtectedRoute allowedRoles={["Customer"]}>
+                <CartPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "checkout",
+            element: (
+              <ProtectedRoute allowedRoles={["Customer"]}>
+                <CheckoutPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "order-success/:orderId",
+            element: (
+              <ProtectedRoute allowedRoles={["Customer"]}>
+                <OrderSuccessPage />
+              </ProtectedRoute>
+            ),
           },
         ],
       },
