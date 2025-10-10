@@ -1,6 +1,5 @@
 import api from "../../lib/axios";
 import type { ProductDto } from "../../types/product";
-// Import CategoryDto từ file types của bạn
 import type { CategoryDto } from "../../types/categories";
 
 export const customerApi = {
@@ -9,6 +8,7 @@ export const customerApi = {
     return response.data;
   },
 
+  // Hàm này đã có sẵn và sẽ được sử dụng
   detailProduct: async (id: string): Promise<ProductDto> => {
     const res = await api.get<ProductDto>(`/api/products/${id}`);
     return res.data;
@@ -19,12 +19,10 @@ export const customerApi = {
     return response.data;
   },
 
-
   getCategoryDetails: async (id: string): Promise<CategoryDto> => {
     const response = await api.get<CategoryDto>(`/api/categories/${id}`);
     return response.data;
   },
-
 
   getProductsByCategoryId: async (categoryId: string): Promise<ProductDto[]> => {
     const response = await api.get<ProductDto[]>(`/api/products/byCategory/${categoryId}`);
