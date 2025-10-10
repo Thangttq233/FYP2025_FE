@@ -14,7 +14,7 @@ import AdminPayments from "./pages/manage/admin/AdminPayments";
 import AdminChatting from "./pages/manage/admin/AdminChatting";
 import AdminUsers from "./pages/manage/admin/AdminUsers";
 import AdminCategories from "./pages/manage/admin/AdminCategories";
-// import CustomerDetailProduct from "@/pages/customer/CustomerDetailProduct";
+import CustomerDetailProduct from "@/pages/customer/CustomerDetailProduct";
 import CustomerProducts from "@/pages/customer/CustomerProducts";
 import CategoryProductsPage from './pages/customer/CategoryProductsPage';
 
@@ -41,10 +41,10 @@ const router = createBrowserRouter([
               </ProtectedRoute>
             ),
           },
-          // {
-          //   path: "product/:id",
-          //   element: <CustomerDetailProduct />,
-          // },
+          {
+            path: "product/:id",
+            element: <CustomerDetailProduct />,
+          },
           {
             path: "products",
             element: <CustomerProducts />,
