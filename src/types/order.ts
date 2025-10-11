@@ -1,47 +1,51 @@
-// OrderStatus Enum
-export type OrderStatus =
-  | "Pending"
-  | "Processing"
-  | "Shipped"
-  | "Delivered"
-  | "Cancelled";
+// Dựa trên các Enum và DTOs từ backend C#
 
-// OrderItemDto
+export enum OrderStatus {
+  Pending,       // Chờ xác nhận
+  Confirmed,     // Đã xác nhận
+  Processing,    // Đang xử lý
+  Shipped,       // Đang giao hàng
+  Delivered,     // Đã giao thành công
+  Cancelled,     // Đã hủy
+  Returned       // Đã hoàn trả
+}
+
+export enum PaymentStatus {
+  Unpaid,        // Chưa thanh toán
+  Paid,          // Đã thanh toán
+  Failed,        // Thanh toán thất bại
+  Refunded       // Đã hoàn tiền
+}
+
 export interface OrderItemDto {
   id: string;
   orderId: string;
   productVariantId: string;
   quantity: number;
-  unitPrice: number;
-  productSnapshotName: string;
-  productVariantSnapshotColor: string;
-  productVariantSnapshotSize: string;
-  productVariantSnapshotImageUrl: string;
+  price: number;
+  productName: string;
+  productVariantColor: string;
+  productVariantSize: string;
+  productVariantImageUrl: string;
 }
 
-// OrderDto
 export interface OrderDto {
   id: string;
   userId: string;
-  customerName: string;
-  customerEmail: string;
-  orderDate: string; // DateTime -> string ISO
-  status: OrderStatus;
-  totalPrice: number;
+  orderDate: string; // Dạng chuỗi ISO 8601
+  totalAmount: number; // <--- Thuộc tính bị thiếu đã được thêm vào đây
   shippingAddress: string;
   phoneNumber: string;
+  fullName: string;
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
   items: OrderItemDto[];
 }
 
-// CreateOrderRequestDto
+// DTO để gửi request tạo order mới
 export interface CreateOrderRequestDto {
   shippingAddress: string;
   phoneNumber: string;
   customerNotes: string;
 }
 
-// UpdateOrderStatusRequestDto
-export interface UpdateOrderStatusRequestDto {
-  orderId: string;
-  newStatus: OrderStatus;
-}
