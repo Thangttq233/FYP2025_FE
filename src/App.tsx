@@ -20,6 +20,8 @@ import CategoryProductsPage from './pages/customer/CategoryProductsPage';
 import CartPage from "./pages/customer/CartPage";
 import CheckoutPage from "./pages/customer/CheckoutPage";
 import OrderSuccessPage from "./pages/customer/OrderSuccessPage";
+import OrderHistoryPage from "./pages/customer/OrderHistoryPage"; 
+import OrderDetailPage from "./pages/customer/OrderDetailPage";   
 
 const router = createBrowserRouter([
   {
@@ -43,6 +45,13 @@ const router = createBrowserRouter([
                 <Profile />
               </ProtectedRoute>
             ),
+            children: [
+  
+              { path: "orders", element: <OrderHistoryPage /> },
+              
+         
+              { path: "orders/:orderId", element: <OrderDetailPage /> },
+            ],
           },
           {
             path: "product/:id",

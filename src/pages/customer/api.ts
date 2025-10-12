@@ -68,4 +68,9 @@ export const customerApi = {
     const response = await api.post<{ paymentUrl: string }>(`/api/orders/${orderId}/pay`);
     return response.data;
   },
+
+  getUserOrders: async (): Promise<OrderDto[]> => {
+    const response = await api.get<OrderDto[]>("/api/orders/my-orders");
+    return response.data;
+  },
 };

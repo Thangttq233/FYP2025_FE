@@ -77,7 +77,7 @@ const OrderSuccessPage = () => {
                 <h2 className="text-xl font-semibold mb-4 border-b pb-2">Chi tiết đơn hàng</h2>
                 <p className="mb-2"><strong>Mã đơn hàng:</strong> {order.id}</p>
                 {/* 👇 SỬA LỖI TẠI ĐÂY BẰNG OPTIONAL CHAINING (?.) */}
-                <p className="mb-2"><strong>Tổng tiền:</strong> <span className="font-bold text-blue-600">{order.totalAmount?.toLocaleString('vi-VN')} ₫</span></p>
+                <p className="mb-2"><strong>Tổng tiền:</strong> <span className="font-bold text-blue-600">{order.totalPrice?.toLocaleString('vi-VN')} ₫</span></p>
                 <p className="mb-2"><strong>Địa chỉ giao hàng:</strong> {order.shippingAddress}</p>
                 <p><strong>Trạng thái thanh toán:</strong> <span className="font-semibold text-orange-500">Chưa thanh toán</span></p>
             </div>

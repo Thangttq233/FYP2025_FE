@@ -17,23 +17,24 @@ export enum PaymentStatus {
   Refunded       // Đã hoàn tiền
 }
 
+
 export interface OrderItemDto {
   id: string;
   orderId: string;
   productVariantId: string;
   quantity: number;
-  price: number;
-  productName: string;
-  productVariantColor: string;
-  productVariantSize: string;
-  productVariantImageUrl: string;
+  unitPrice: number; 
+  productSnapshotName: string; 
+  productVariantSnapshotColor: string; 
+  productVariantSnapshotSize: string; 
+  productVariantSnapshotImageUrl: string; 
 }
 
 export interface OrderDto {
   id: string;
   userId: string;
-  orderDate: string; // Dạng chuỗi ISO 8601
-  totalAmount: number; // <--- Thuộc tính bị thiếu đã được thêm vào đây
+  orderDate: string; 
+  totalPrice: number; 
   shippingAddress: string;
   phoneNumber: string;
   fullName: string;
