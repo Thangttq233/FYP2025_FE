@@ -86,7 +86,7 @@ const OrderDetailPage = () => {
         </div>
         
         
-        {order.paymentStatus ==  PaymentStatus.Unpaid && (
+        {order.paymentStatus ===  PaymentStatus.Unpaid && (
           <div className="mt-6 border-t pt-6 text-right">
             <button
               onClick={handlePayNow}
@@ -103,5 +103,5 @@ const OrderDetailPage = () => {
 };
 
 
- 
+
 export default OrderDetailPage;
