@@ -1,97 +1,73 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { customerApi } from './api';
-import type { OrderDto } from '@/types/order';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, XCircle } from 'lucide-react';
 
 const OrderSuccessPage = () => {
-  const { orderId } = useParams<{ orderId: string }>();
-  const [order, setOrder] = useState<OrderDto | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isPaying, setIsPaying] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const resCode = searchParams.get("vnp_ResponseCode");
+  const tmnCode = searchParams.get("vnp_TmnCode");
+  const orderId = searchParams.get("vnp_TxnRef");
 
-  useEffect(() => {
-    if (!orderId) {
-      setError("Không tìm thấy mã đơn hàng.");
-      setIsLoading(false);
-      return;
-    }
+  const handleReturn = async (resCode: string | null, orderId: string | null) => {
+    if (!resCode || !orderId) return;
 
-    const fetchOrderDetails = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await customerApi.getOrderDetails(orderId);
-        setOrder(data);
-      } catch (err) {
-        console.error("Không thể tải chi tiết đơn hàng:", err);
-        setError("Không thể tải thông tin đơn hàng. Vui lòng thử lại.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchOrderDetails();
-  }, [orderId]);
-
-  const handlePayNow = async () => {
-    if (!orderId || isPaying) return;
-    setIsPaying(true);
     try {
-      const paymentData = await customerApi.getVnpayPaymentUrl(orderId);
-      if (paymentData.paymentUrl) {
-        window.location.href = paymentData.paymentUrl;
-      } else {
-        throw new Error("Không nhận được URL thanh toán.");
-      }
+      const res = await customerApi.handleReturnVNPAY(resCode, orderId);
+      console.log("Return result:", res);
     } catch (error) {
-      console.error("Lỗi khi tạo link thanh toán:", error);
-      alert("Đã có lỗi xảy ra khi tạo yêu cầu thanh toán. Vui lòng thử lại sau.");
-      setIsPaying(false);
+      console.error("Error handling return:", error);
     }
   };
 
-  if (isLoading) {
-    return <div className="container mx-auto p-8 text-center">Đang tải thông tin đơn hàng...</div>;
-  }
+  useEffect(() => {
+    handleReturn(resCode, orderId);
+  }, [resCode, orderId]);
 
-  if (error) {
-    return <div className="container mx-auto p-8 text-center text-red-500">{error}</div>;
-  }
-  
-  // Không cần check !order ở đây nữa vì đã có error state xử lý
-  // if (!order) {
-  //   return <div className="container mx-auto p-8 text-center">Không tìm thấy đơn hàng.</div>;
-  // }
+  const isSuccess = resCode === "00";
 
   return (
-    <div className="bg-gray-50 min-h-screen py-12">
-      <div className="container mx-auto px-4 max-w-3xl">
-        <div className="bg-white p-8 rounded-lg shadow-lg text-center">
-          <CheckCircle className="text-green-500 w-16 h-16 mx-auto mb-4" />
-          <h1 className="text-3xl font-bold mb-2">Đặt hàng thành công!</h1>
-          <p className="text-gray-600 mb-6">Cảm ơn bạn đã mua sắm. Đơn hàng của bạn đang chờ thanh toán.</p>
-          
-          {order && (
-            <div className="text-left bg-gray-50 p-6 rounded-md mb-6 border border-gray-200">
-                <h2 className="text-xl font-semibold mb-4 border-b pb-2">Chi tiết đơn hàng</h2>
-                <p className="mb-2"><strong>Mã đơn hàng:</strong> {order.id}</p>
-                {/* 👇 SỬA LỖI TẠI ĐÂY BẰNG OPTIONAL CHAINING (?.) */}
-                <p className="mb-2"><strong>Tổng tiền:</strong> <span className="font-bold text-blue-600">{order.totalPrice?.toLocaleString('vi-VN')} ₫</span></p>
-                <p className="mb-2"><strong>Địa chỉ giao hàng:</strong> {order.shippingAddress}</p>
-                <p><strong>Trạng thái thanh toán:</strong> <span className="font-semibold text-orange-500">Chưa thanh toán</span></p>
-            </div>
-          )}
+    <div className="bg-gray-100 min-h-screen flex justify-center items-center px-4">
+      <div className="bg-white max-w-lg w-full rounded-2xl p-8 shadow-xl">
 
-          <button
-            onClick={handlePayNow}
-            disabled={isPaying || !order}
-            className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed transform hover:scale-105"
+        {/* ICON */}
+        <div className="flex justify-center mb-4">
+          {isSuccess ? (
+            <CheckCircle className="w-20 h-20 text-green-500" />
+          ) : (
+            <XCircle className="w-20 h-20 text-red-500" />
+          )}
+        </div>
+
+        {/* TITLE */}
+        <h2 className="text-3xl font-bold text-center mb-3">
+          {isSuccess ? "Thanh toán thành công!" : "Thanh toán thất bại!"}
+        </h2>
+
+        <p className="text-center text-gray-600 mb-6">
+          {isSuccess
+            ? "Cảm ơn bạn đã thanh toán qua VNPay."
+            : "Rất tiếc, giao dịch của bạn không thành công. Vui lòng thử lại."}
+        </p>
+
+        {/* INFORMATION CARD */}
+        <div className="bg-gray-50 rounded-xl p-5 mb-6 border">
+          <h3 className="font-semibold text-lg mb-3">Thông tin giao dịch</h3>
+
+          <div className="space-y-2 text-gray-700">
+            <p><span className="font-medium">Mã phản hồi:</span> {resCode}</p>
+            <p><span className="font-medium">Mã cửa hàng:</span> {tmnCode}</p>
+            <p><span className="font-medium">Mã đơn hàng:</span> {orderId}</p>
+          </div>
+        </div>
+
+        {/* BUTTON */}
+        <div className="flex justify-center">
+          <Link
+            to="/"
+            className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl shadow hover:bg-blue-700 transition"
           >
-            {isPaying ? 'Đang chuyển hướng...' : 'Thanh toán ngay'}
-          </button>
-          <Link to="/profile" className="block mt-4 text-gray-600 hover:text-blue-600">
-            Xem lịch sử đơn hàng
+            Quay lại trang chủ
           </Link>
         </div>
       </div>
@@ -100,4 +76,3 @@ const OrderSuccessPage = () => {
 };
 
 export default OrderSuccessPage;
-

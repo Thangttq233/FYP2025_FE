@@ -82,7 +82,7 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: "order-success/:orderId",
+            path: "order-success",
             element: (
               <ProtectedRoute allowedRoles={["Customer"]}>
                 <OrderSuccessPage />

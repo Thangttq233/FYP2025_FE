@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, NavigationType, UNSAFE_useFogOFWarDiscovery } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { customerApi } from './api';
 import type { OrderDto } from '@/types/order';
 import { OrderStatus, PaymentStatus } from '@/types/order';
@@ -9,35 +9,37 @@ const OrderDetailPage = () => {
   const [order, setOrder] = useState<OrderDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaying, setIsPaying] = useState(false);
- 
 
   useEffect(() => {
     if (!orderId) return;
+
     const fetchOrder = async () => {
       try {
-        const data = await customerApi.getOrderDetails(orderId);
+        const data: OrderDto = await customerApi.getOrderDetails(orderId);
         setOrder(data);
       } catch (error) {
-        console.error("Lỗi tải chi tiết đơn hàng:", error);
+        console.error('Lỗi tải chi tiết đơn hàng:', error);
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchOrder();
   }, [orderId]);
 
-    console.log(order?.status);
-
   const handlePayNow = async () => {
-    if (!orderId || isPaying) return;
+    if (!order || isPaying) return;
+
     setIsPaying(true);
     try {
-      const { paymentUrl } = await customerApi.getVnpayPaymentUrl(orderId);
+      // API yêu cầu truyền full OrderDto → truyền trực tiếp "order"
+      const { paymentUrl } = await customerApi.createPaymentUrl(order);
+      console.log(order)
       if (paymentUrl) {
         window.location.href = paymentUrl;
       }
     } catch (error) {
-      alert("Không thể tạo yêu cầu thanh toán. Vui lòng thử lại.");
+      alert('Không thể tạo yêu cầu thanh toán. Vui lòng thử lại.');
       setIsPaying(false);
     }
   };
@@ -72,21 +74,28 @@ const OrderDetailPage = () => {
 
         <h3 className="font-semibold mb-4 border-t pt-4">Các sản phẩm</h3>
         <div className="space-y-4">
-          {order.items.map(item => (
+          {order.items.map((item) => (
             <div key={item.id} className="flex items-center">
-              <img src={item.productVariantSnapshotImageUrl} alt={item.productSnapshotName} className="w-16 h-16 object-cover rounded-md mr-4"/>
+              <img
+                src={item.productVariantSnapshotImageUrl}
+                alt={item.productSnapshotName}
+                className="w-16 h-16 object-cover rounded-md mr-4"
+              />
               <div className="flex-grow">
                 <p className="font-semibold">{item.productSnapshotName}</p>
-                <p className="text-sm text-gray-500">{item.productVariantSnapshotColor}, {item.productVariantSnapshotSize}</p>
+                <p className="text-sm text-gray-500">
+                  {item.productVariantSnapshotColor}, {item.productVariantSnapshotSize}
+                </p>
                 <p className="text-sm text-gray-500">Số lượng: {item.quantity}</p>
               </div>
-              <p className="font-semibold">{(item.unitPrice * item.quantity).toLocaleString('vi-VN')} ₫</p>
+              <p className="font-semibold">
+                {(item.unitPrice * item.quantity).toLocaleString('vi-VN')} ₫
+              </p>
             </div>
           ))}
         </div>
-        
-        
-        {order.paymentStatus ===  PaymentStatus.Unpaid && (
+
+        {order.paymentStatus === PaymentStatus.Unpaid && (
           <div className="mt-6 border-t pt-6 text-right">
             <button
               onClick={handlePayNow}
@@ -101,7 +110,5 @@ const OrderDetailPage = () => {
     </div>
   );
 };
-
-
 
 export default OrderDetailPage;

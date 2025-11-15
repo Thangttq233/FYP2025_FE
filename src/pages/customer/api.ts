@@ -64,9 +64,13 @@ export const customerApi = {
     return response.data;
   },
 
-  getVnpayPaymentUrl: async (orderId: string): Promise<{ paymentUrl: string }> => {
-    const response = await api.post<{ paymentUrl: string }>(`/api/orders/${orderId}/pay`);
+  createPaymentUrl: async (order:OrderDto) =>{
+    const response = await api.post<{ paymentUrl: string }>(`/api/orders/pay`, order);
     return response.data;
+  },
+  handleReturnVNPAY: async (responseCode:string, orderId: string)=>{
+    const res = await api.post<{ paymentUrl: string }>(`/api/orders/returnURL`,{responseCode, orderId} );
+    return res.data;
   },
 
   getUserOrders: async (): Promise<OrderDto[]> => {
