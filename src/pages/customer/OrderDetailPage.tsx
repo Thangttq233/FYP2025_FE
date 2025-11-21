@@ -32,7 +32,6 @@ const OrderDetailPage = () => {
 
     setIsPaying(true);
     try {
-      // API yêu cầu truyền full OrderDto → truyền trực tiếp "order"
       const { paymentUrl } = await customerApi.createPaymentUrl(order);
       console.log(order)
       if (paymentUrl) {
@@ -59,7 +58,7 @@ const OrderDetailPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <h3 className="font-semibold mb-2">Thông tin giao hàng</h3>
-            <p>{order.fullName}</p>
+            <p>{order.customerName}</p>
             <p>{order.phoneNumber}</p>
             <p>{order.shippingAddress}</p>
           </div>

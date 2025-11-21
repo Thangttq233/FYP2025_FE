@@ -52,7 +52,7 @@ const AdminCategories = () => {
     if (window.confirm("Are you sure you want to delete this category?")) {
       try {
         await adminhApi.deleteCategory(id);
-        fetchCategories(); // Refresh the list
+        fetchCategories(); 
       } catch (err) {
         setError("Failed to delete category.");
         console.error(err);
@@ -116,8 +116,6 @@ const AdminCategories = () => {
           />
         </DialogContent>
       </Dialog>
-
-      {/* ...Phần còn lại của code không thay đổi... */}
       {isLoading && categories.length === 0 && <p>Loading categories...</p>}
       {error && <p className="text-red-500">{error}</p>}
       <table className="min-w-full bg-white border">

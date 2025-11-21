@@ -24,7 +24,6 @@ const Profile = () => {
   return (
     <div className="container mx-auto p-4 md:p-8">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Sidebar */}
         <div className="lg:col-span-1">
           <div className="bg-white p-4 rounded-lg shadow-sm h-fit sticky top-24">
             <h2 className="text-xl font-bold mb-4">Tài khoản</h2>
@@ -47,13 +46,8 @@ const Profile = () => {
             </nav>
           </div>
         </div>
-
-        {/* Content Area */}
         <div className="lg:col-span-3">
-            {/* Outlet sẽ render các trang con như OrderHistoryPage */}
             <Outlet />
-            
-            {/* Khi ở trang /profile, hiển thị thông tin tài khoản mặc định */}
             {location.pathname === '/profile' && (
                 <div className="bg-white p-6 rounded-lg shadow-sm">
                     <h1 className="text-2xl font-bold mb-4">Thông tin tài khoản</h1>

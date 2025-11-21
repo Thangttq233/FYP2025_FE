@@ -11,12 +11,10 @@ const CartPage = () => {
 
   const fetchCart = async () => {
     try {
-      // Bắt đầu tải, không cần setIsLoading(true) nếu chỉ gọi 1 lần trong useEffect
       const cartData = await customerApi.getUserCart();
       setCart(cartData);
     } catch (error) {
       console.error("Không thể tải giỏ hàng:", error);
-      // Có thể thêm state để hiển thị lỗi cho người dùng
     } finally {
       setIsLoading(false);
     }
@@ -27,7 +25,6 @@ const CartPage = () => {
   }, []);
 
   const handleUpdateQuantity = async (item: CartItemDto, newQuantity: number) => {
-    // Ngăn chặn việc spam click và cập nhật số lượng nhỏ hơn 1
     if (newQuantity < 1 || updatingItemId === item.id) return;
     
     setUpdatingItemId(item.id);
@@ -81,7 +78,6 @@ const CartPage = () => {
       <div className="container mx-auto p-4 md:p-8">
         <h1 className="text-3xl font-bold mb-6">Giỏ hàng của bạn</h1>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Danh sách sản phẩm trong giỏ */}
           <div className="lg:col-span-2 bg-white p-4 rounded-lg shadow-md">
             <div className="space-y-4">
               {cart.items.map(item => (
@@ -108,8 +104,6 @@ const CartPage = () => {
               ))}
             </div>
           </div>
-          
-          {/* Tóm tắt đơn hàng */}
           <div className="lg:col-span-1">
             <div className="bg-white p-6 rounded-lg shadow-md sticky top-24">
               <h2 className="text-xl font-bold border-b pb-4 mb-4">Tóm tắt đơn hàng</h2>

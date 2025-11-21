@@ -31,13 +31,14 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const { auth } = useAuthStore();
+  const [cartCount, setCartCount] = useState(0);
+
 
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [allCategories, setAllCategories] = useState<CategoryDto[]>([]);
   const navRef = useRef<HTMLElement>(null); // Dùng để đóng dropdown khi click ra ngoài
 
-  // Lấy dữ liệu categories từ API
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -62,6 +63,26 @@ const Navbar = () => {
       document.removeEventListener("mousedown", handleOutsideClick);
     };
   }, []);
+
+  useEffect(() => {
+  const fetchCartCount = async () => {
+    if (!auth) {
+      setCartCount(0); 
+      return;
+    }
+
+    try {
+      const count = await customerApi.getCartCount();
+      setCartCount(count);
+    } catch (error) {
+      console.error("Failed to fetch cart count:", error);
+      setCartCount(0);
+    }
+  };
+
+  fetchCartCount();
+}, [auth]);
+
 
   // Nhóm các categories lại để dễ dàng hiển thị
   const groupedCategories = useMemo(() => {
@@ -103,7 +124,10 @@ const Navbar = () => {
 
   return (
 
-    <header className="bg-white shadow-md" ref={navRef}>
+    <header
+        className="bg-white shadow-md fixed top-0 left-0 w-full z-50"
+        ref={navRef}
+      >
       <div className="bg-gray-900 text-white text-xs py-2">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <div className="flex items-center space-x-4">
@@ -198,12 +222,13 @@ const Navbar = () => {
               <User />
             </Link>
 
-            <div className="relative">
+            <Link to="/cart" className="relative block">
               <ShoppingCart className="h-6 w-6 text-gray-700 cursor-pointer hover:text-blue-600" />
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                0
+                {cartCount}
               </span>
-            </div>
+            </Link>
+
 
             <div className="lg:hidden">
               <button onClick={() => setIsMenuOpen(!isMenuOpen)}>

@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { customerApi } from './api';
 import type { OrderDto } from '@/types/order';
-import { OrderStatus, PaymentStatus } from '@/types/order'; // Import enums
-
-// Helper function to get status styles
+import { OrderStatus, PaymentStatus } from '@/types/order'; 
 const getStatusBadge = (status: OrderStatus) => {
   switch (status) {
     case OrderStatus.Pending:

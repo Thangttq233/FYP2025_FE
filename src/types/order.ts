@@ -37,7 +37,8 @@ export interface OrderDto {
   totalPrice: number; 
   shippingAddress: string;
   phoneNumber: string;
-  fullName: string;
+  customerName: string;
+  customerEmail: string;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
   items: OrderItemDto[];
@@ -49,4 +50,10 @@ export interface CreateOrderRequestDto {
   phoneNumber: string;
   customerNotes: string;
 }
+
+export interface UpdateOrderStatusRequestDto {
+  orderId: string;
+  newStatus: OrderStatus;
+}
+
 

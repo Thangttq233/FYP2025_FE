@@ -24,6 +24,4 @@ const ProtectedRoute = ({ allowedRoles, children }: ProtectedRouteProps) => {
 
   return <>{children} </>;
 };
-//render children nếu thỏa dk
-
 export default ProtectedRoute;

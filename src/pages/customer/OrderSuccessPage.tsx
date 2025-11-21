@@ -29,8 +29,6 @@ const OrderSuccessPage = () => {
   return (
     <div className="bg-gray-100 min-h-screen flex justify-center items-center px-4">
       <div className="bg-white max-w-lg w-full rounded-2xl p-8 shadow-xl">
-
-        {/* ICON */}
         <div className="flex justify-center mb-4">
           {isSuccess ? (
             <CheckCircle className="w-20 h-20 text-green-500" />
@@ -38,8 +36,6 @@ const OrderSuccessPage = () => {
             <XCircle className="w-20 h-20 text-red-500" />
           )}
         </div>
-
-        {/* TITLE */}
         <h2 className="text-3xl font-bold text-center mb-3">
           {isSuccess ? "Thanh toán thành công!" : "Thanh toán thất bại!"}
         </h2>
@@ -49,8 +45,6 @@ const OrderSuccessPage = () => {
             ? "Cảm ơn bạn đã thanh toán qua VNPay."
             : "Rất tiếc, giao dịch của bạn không thành công. Vui lòng thử lại."}
         </p>
-
-        {/* INFORMATION CARD */}
         <div className="bg-gray-50 rounded-xl p-5 mb-6 border">
           <h3 className="font-semibold text-lg mb-3">Thông tin giao dịch</h3>
 
@@ -60,8 +54,6 @@ const OrderSuccessPage = () => {
             <p><span className="font-medium">Mã đơn hàng:</span> {orderId}</p>
           </div>
         </div>
-
-        {/* BUTTON */}
         <div className="flex justify-center">
           <Link
             to="/"

@@ -1,5 +1,3 @@
-// src/pages/customer/CategoryProductsPage.tsx
-
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { customerApi } from './api';

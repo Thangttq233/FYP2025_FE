@@ -8,7 +8,6 @@ const api = axios.create({
     },
 });
 
-// Request interceptor add token on each request
 api.interceptors.request.use(
     (config) => {
         const token = useAuthStore.getState().auth?.token;
@@ -20,7 +19,6 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Response interceptor error 401
 api.interceptors.response.use(
     (response) => response,
     (error) => {

@@ -4,20 +4,16 @@ import { customerApi } from './api';
 import type { ProductDto, ProductVariantDto } from '@/types/product';
 import { ShoppingCart, Check } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
-
 const CustomerDetailProduct = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { auth } = useAuthStore();
-
   const [product, setProduct] = useState<ProductDto | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariantDto | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-
-  // Lấy dữ liệu sản phẩm từ API
   useEffect(() => {
     if (!id) return;
     
@@ -115,8 +111,6 @@ const CustomerDetailProduct = () => {
   return (
     <div className="container mx-auto max-w-6xl p-4 md:p-6">
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6 md:gap-10">
-        
-        {/* Phần hình ảnh */}
         <div className="md:col-span-2">
             <div className="mb-3">
                 <img 
@@ -137,15 +131,12 @@ const CustomerDetailProduct = () => {
                 ))}
             </div>
         </div>
-
-        {/* Phần thông tin và tùy chọn */}
         <div className="md:col-span-3 flex flex-col">
             <div>
                 <h1 className="text-2xl md:text-3xl font-bold mb-2">{product.name}</h1>
                 <p className="text-xl font-bold text-blue-600 mb-3">
                     {selectedVariant?.price.toLocaleString('vi-VN')} ₫
                 </p>
-                {/* ĐÃ THÊM LẠI DÒNG MÔ TẢ */}
                 <p className="text-gray-600 mb-4 text-sm">{product.description}</p>
             </div>
 
@@ -190,8 +181,7 @@ const CustomerDetailProduct = () => {
                             );
                         })}
                     </div>
-                </div>
-                
+                </div>               
                 <div className="grid grid-cols-4 items-center">
                     <h3 className="text-base font-semibold text-gray-700 col-span-1">Số lượng</h3>
                     <div className="col-span-3 flex items-center">
@@ -205,8 +195,7 @@ const CustomerDetailProduct = () => {
                         </p>
                     </div>
                 </div>
-            </div>
-            
+            </div>          
             <div className="mt-6">
                 <button
                     onClick={handleAddToCart}

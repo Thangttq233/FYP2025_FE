@@ -102,7 +102,7 @@ const HomePage = () => {
   }, []);
 
   return (
-    <main>
+    <main className="mt-[140px]">
       <HeroSection />
 
       <section className="container mx-auto px-4 my-12">

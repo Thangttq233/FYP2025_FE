@@ -3,76 +3,78 @@ import { Link } from "react-router-dom";
 const Footer = () => {
   return (
     <footer className="bg-black text-gray-300 mt-20">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-6 py-12">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 px-6 py-12">
+
+        {/* Column 1 */}
         <div>
-          <h2 className="text-2xl font-bold text-white mb-4">4MEN</h2>
+          <h2 className="text-2xl font-bold text-white mb-4 tracking-wide">4MEN</h2>
           <p className="text-sm leading-6">
             Thời trang nam 4MEN – Hệ thống cửa hàng bán quần áo nam phong cách,
             hiện đại, trẻ trung. Cam kết chất lượng và dịch vụ tốt nhất.
           </p>
         </div>
 
+        {/* Column 2 */}
         <div>
           <h3 className="text-lg font-semibold text-white mb-4">Hỗ Trợ</h3>
           <ul className="space-y-2 text-sm">
             <li>
-              <Link to="/about" className="hover:text-white">
+              <Link to="/about" className="hover:text-white transition-colors">
                 Giới thiệu
               </Link>
             </li>
             <li>
-              <Link to="/contact" className="hover:text-white">
+              <Link to="/contact" className="hover:text-white transition-colors">
                 Liên hệ
               </Link>
             </li>
             <li>
-              <Link to="/policy" className="hover:text-white">
+              <Link to="/policy" className="hover:text-white transition-colors">
                 Chính sách
               </Link>
             </li>
             <li>
-              <Link to="/faq" className="hover:text-white">
+              <Link to="/faq" className="hover:text-white transition-colors">
                 FAQ
               </Link>
             </li>
           </ul>
         </div>
 
+        {/* Column 3 */}
         <div>
           <h3 className="text-lg font-semibold text-white mb-4">Chăm Sóc KH</h3>
           <ul className="space-y-2 text-sm">
             <li>
-              Hotline:{" "}
-              <span className="text-white font-medium">0868 444 644</span>
+              Hotline: <span className="text-white font-medium">0868 444 644</span>
             </li>
             <li>
               Email:{" "}
               <span className="text-white font-medium">info@4menshop.com</span>
             </li>
             <li>
-              <Link to="/stores" className="hover:text-white">
+              <Link to="/stores" className="hover:text-white transition-colors">
                 Hệ thống cửa hàng
               </Link>
             </li>
           </ul>
         </div>
 
+        {/* Column 4 */}
         <div>
-          <h3 className="text-lg font-semibold text-white mb-4">
-            Đăng ký nhận tin
-          </h3>
+          <h3 className="text-lg font-semibold text-white mb-4">Đăng ký nhận tin</h3>
           <p className="text-sm mb-3">
             Nhận thông tin khuyến mãi mới nhất từ 4MEN.
           </p>
-          <form className="flex">
+          <form className="flex max-w-sm">
             <input
               type="email"
               placeholder="Nhập email..."
-              className="w-full px-3 py-2 rounded-l-md text-black"
+              className="w-full px-3 py-2 rounded-l-md text-black outline-none"
             />
             <button
               type="submit"
-              className="bg-red-500 px-4 py-2 rounded-r-md text-white hover:bg-red-600"
+              className="bg-red-500 px-4 py-2 rounded-r-md text-white hover:bg-red-600 transition-colors"
             >
               Gửi
             </button>

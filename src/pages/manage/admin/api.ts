@@ -1,5 +1,6 @@
 import api from "@/lib/axios";
-
+import { OrderStatus } from "@/types/order"; 
+import type {UpdateOrderStatusRequestDto} from "@/types/order"; 
 
 export const adminhApi = {
     getAllProduct: async () => {
@@ -57,6 +58,21 @@ export const adminhApi = {
     getOrder: async () => {
         const res = await api.get('/api/orders');
         return res.data;
-    }
+    },
 
+    getOrderDetails: async (id: string) => {
+    const res = await api.get(`/api/orders/${id}`);
+    return res.data;
+    },
+
+    
+    updateOrderStatus: async (payload: UpdateOrderStatusRequestDto) => {
+    const res = await api.put(`/api/orders/update-status`, payload);
+    return res.data;
+  },
+    
+    getAllOrders: async () => {
+    const res = await api.get("/api/orders");
+    return res.data;
+  },
 }

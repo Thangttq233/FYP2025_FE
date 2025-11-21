@@ -111,8 +111,6 @@ const AdminProducts: React.FC = () => {
             />
           </DialogContent>
         </Dialog>
-
-        {/* Edit Product Dialog */}
         <Dialog
           open={!!editingProduct}
           onOpenChange={(isOpen) => !isOpen && setEditingProduct(null)}

@@ -2,33 +2,24 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { customerApi } from './api';
 import type { CreateOrderRequestDto } from '@/types/order';
-import type { CartDto } from '@/types/cart'; // Thêm import CartDto
+import type { CartDto } from '@/types/cart'; 
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
-  
-  // State cho form
   const [formData, setFormData] = useState<CreateOrderRequestDto>({
     customerNotes: '',
     phoneNumber: '',
     shippingAddress: '',
   });
-  
-  // State cho giỏ hàng
   const [cart, setCart] = useState<CartDto | null>(null);
   const [isCartLoading, setIsCartLoading] = useState(true);
-
-  // State chung
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Lấy thông tin giỏ hàng khi trang được tải
   useEffect(() => {
     const fetchCartData = async () => {
       try {
         const cartData = await customerApi.getUserCart();
         setCart(cartData);
-        // Nếu giỏ hàng rỗng, chuyển về trang giỏ hàng
         if (!cartData || cartData.items.length === 0) {
           navigate('/cart');
         }
@@ -75,8 +66,6 @@ const CheckoutPage = () => {
       <div className="container mx-auto px-4">
         <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Thanh toán</h1>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          
-          {/* Cột trái: Form thông tin */}
           <div className="lg:col-span-3 bg-white p-8 rounded-lg shadow-lg h-fit">
             <h2 className="text-2xl font-semibold mb-6">Thông tin giao hàng</h2>
             <form onSubmit={handleSubmit}>
@@ -113,8 +102,6 @@ const CheckoutPage = () => {
               </button>
             </form>
           </div>
-          
-          {/* Cột phải: Tóm tắt giỏ hàng */}
           <div className="lg:col-span-2">
             <div className="bg-white p-6 rounded-lg shadow-lg sticky top-24">
               <h2 className="text-xl font-semibold border-b pb-4 mb-4">Đơn hàng của bạn ({cart?.items.length} sản phẩm)</h2>
