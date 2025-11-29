@@ -4,14 +4,16 @@ import { Outlet } from "react-router-dom";
 
 const ManageLayout = () => {
   return (
-    <div className="flex h-screen bg-white font-sans">
+    <div className="flex h-screen bg-gray-50 font-sans overflow-hidden w-full">
       <Sidebar />
-      <div className="flex flex-1 flex-col relative">
-        <div className="fixed left-[240px] right-0 top-0 z-50">
+      <div className="flex flex-1 flex-col h-full relative w-full min-w-0">
+        <div className="sticky top-0 z-40 w-full shadow-sm">
           <AdminNavbar />
         </div>
-        <main className="flex-1 overflow-y-auto  pt-20">
-          <Outlet />
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 bg-stone-50">
+            <div className="w-full max-w-[1600px] mx-auto">
+                <Outlet />
+            </div>
         </main>
       </div>
     </div>

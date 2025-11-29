@@ -4,13 +4,13 @@ import { authApi } from "./api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, User, Calendar, Mail, Lock } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
 const passwordRequirements = [
-  "Ít nhất một ký tự không phải chữ và số.",
+  "Ít nhất một ký tự đặc biệt (@, #, $, ...)",
   "Ít nhất một chữ số ('0'-'9').",
   "Ít nhất một chữ hoa ('A'-'Z').",
 ];
@@ -72,75 +72,98 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded-lg ">
-      <h2 className="mb-6 text-center text-3xl font-bold text-gray-800">
-        Đăng ký
-      </h2>
+    <div className="w-full animate-in fade-in slide-in-from-right-4 duration-300">
+      <div className="mb-6 text-center">
+        <h2 className="text-2xl font-bold text-gray-900">Tạo tài khoản mới</h2>
+        <p className="text-gray-500 text-sm">Nhập thông tin cá nhân của bạn</p>
+      </div>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <div className="grid gap-2">
-          <Label>Email</Label>
-          <Input
-            type="email"
-            placeholder="you@example.com"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            required
-          />
-        </div>
-
-        <div className="grid gap-2">
-          <Label>Ngày sinh</Label>
-          <Input
-            type="date"
-            value={form.dateOfBirth}
-            onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })}
-            required
-          />
-        </div>
-
-        <div className="grid gap-2">
+        <div className="space-y-2">
           <Label>Họ và tên</Label>
-          <Input
-            type="text"
-            placeholder="Nguyễn Văn A"
-            value={form.fullName}
-            onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-            required
-          />
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Ví dụ: Nguyễn Văn A"
+              value={form.fullName}
+              onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+              required
+              className="pl-9 h-11"
+            />
+          </div>
         </div>
 
-        <div className="grid gap-2">
+        <div className="space-y-2">
+          <Label>Email</Label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              type="email"
+              placeholder="name@example.com"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              required
+              className="pl-9 h-11"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Ngày sinh</Label>
+          <div className="relative">
+            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              type="date"
+              value={form.dateOfBirth}
+              onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })}
+              required
+              className="pl-9 h-11"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
           <Label>Mật khẩu</Label>
-          <Input
-            type="password"
-            placeholder="********"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            required
-          />
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              type="password"
+              placeholder="********"
+              value={form.password}
+              onChange={(e) => {
+                 setForm({ ...form, password: e.target.value });
+                 // Tự động clear lỗi khi người dùng nhập lại
+                 if(passwordErrors.length > 0) setPasswordErrors([]); 
+              }}
+              required
+              className="pl-9 h-11"
+            />
+          </div>
         </div>
 
-        <div className="grid gap-2">
+        <div className="space-y-2">
           <Label>Xác nhận mật khẩu</Label>
-          <Input
-            type="password"
-            placeholder="********"
-            value={form.confirmPassword}
-            onChange={(e) =>
-              setForm({ ...form, confirmPassword: e.target.value })
-            }
-            required
-          />
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              type="password"
+              placeholder="********"
+              value={form.confirmPassword}
+              onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+              required
+              className="pl-9 h-11"
+            />
+          </div>
         </div>
 
         {passwordErrors.length > 0 && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-3 space-y-1">
-            <p className="flex items-center text-red-600 font-medium">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 space-y-2 animate-in slide-in-from-top-2">
+            <div className="flex items-center text-red-700 font-medium text-sm">
               <AlertCircle className="w-4 h-4 mr-2" />
-              Mật khẩu chưa đạt yêu cầu:
-            </p>
-            <ul className="list-disc list-inside text-sm text-red-500">
+              Mật khẩu chưa đủ mạnh:
+            </div>
+            <ul className="list-disc list-inside text-xs text-red-600 pl-1 space-y-1">
               {passwordErrors.map((err, idx) => (
                 <li key={idx}>{err}</li>
               ))}
@@ -148,8 +171,12 @@ const RegisterForm = () => {
           </div>
         )}
 
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Đang xử lý..." : "Đăng ký"}
+        <Button 
+            type="submit" 
+            className="w-full h-11 text-base font-semibold bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200 mt-2" 
+            disabled={loading}
+        >
+          {loading ? "Đang tạo tài khoản..." : "Đăng ký"}
         </Button>
       </form>
     </div>
