@@ -10,6 +10,7 @@ import { adminhApi } from "./api";
 import type { CategoryDto } from "@/types/categories";
 import CategoryForm from "@/components/shared/CategoryForm";
 import { MainCategoryType } from "@/types/categories";
+import { Plus, Pencil, Trash2, List, Tag } from "lucide-react";
 
 const AdminCategories = () => {
   const [categories, setCategories] = useState<CategoryDto[]>([]);
@@ -52,7 +53,7 @@ const AdminCategories = () => {
     if (window.confirm("Are you sure you want to delete this category?")) {
       try {
         await adminhApi.deleteCategory(id);
-        fetchCategories(); 
+        fetchCategories();
       } catch (err) {
         setError("Failed to delete category.");
         console.error(err);
@@ -95,17 +96,22 @@ const AdminCategories = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Manage Categories</h1>
-      <div className="mb-4">
-        <Button onClick={handleAddNew}>Add New Category</Button>
+    <div className="container mx-auto p-4 md:p-6 max-w-6xl">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Quản lý Danh mục</h1>
+            <p className="text-gray-500 text-sm mt-1">Danh sách tất cả danh mục sản phẩm</p>
+        </div>
+        <Button onClick={handleAddNew} className="w-full md:w-auto flex items-center gap-2 shadow-md">
+            <Plus size={18} /> Thêm danh mục
+        </Button>
       </div>
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingCategory ? "Edit Category" : "Add New Category"}
+              {editingCategory ? "Chỉnh sửa danh mục" : "Thêm danh mục mới"}
             </DialogTitle>
           </DialogHeader>
           <CategoryForm
@@ -116,38 +122,86 @@ const AdminCategories = () => {
           />
         </DialogContent>
       </Dialog>
-      {isLoading && categories.length === 0 && <p>Loading categories...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-      <table className="min-w-full bg-white border">
-        <thead>
-          <tr>
-            <th className="py-2 px-4 border-b">Name</th>
-            <th className="py-2 px-4 border-b text-center">Main Category</th>
-            <th className="py-2 px-4 border-b text-center">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {categories.map((category) => (
-            <tr key={category.id}>
-              <td className="py-2 px-4 border-b">{category.name}</td>
-              <td className="py-2 px-4 border-b text-center">
-                {mainCategoryMap[category.mainCategory]}
-              </td>
-              <td className="py-2 px-4 border-b text-center">
-                <Button onClick={() => handleEdit(category)} className="mr-2">
-                  Edit
-                </Button>
-                <Button
-                  onClick={() => handleDelete(category.id)}
-                  variant="destructive"
-                >
-                  Delete
-                </Button>
-              </td>
+
+      {isLoading && categories.length === 0 && (
+        <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
+            <p>Đang tải dữ liệu...</p>
+        </div>
+      )}
+      
+      {error && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border border-red-100">
+            {error}
+          </div>
+      )}
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <table className="w-full text-left border-collapse">
+          <thead className="hidden md:table-header-group bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th className="py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider">Tên danh mục</th>
+              <th className="py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider text-center">Nhóm chính</th>
+              <th className="py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider text-right">Hành động</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="block md:table-row-group">
+            {categories.map((category) => (
+              <tr 
+                key={category.id} 
+                className="block md:table-row border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
+              >
+                <td className="block md:table-cell py-3 px-4 md:py-4 md:px-6">
+                    <div className="flex justify-between items-center md:block">
+                        <span className="font-semibold text-gray-600 md:hidden text-sm bg-gray-100 px-2 py-1 rounded">Tên:</span>
+                        <div className="flex items-center gap-2 font-medium text-gray-900">
+                            <Tag size={16} className="text-blue-500 hidden md:block" />
+                            {category.name}
+                        </div>
+                    </div>
+                </td>
+                
+                <td className="block md:table-cell py-3 px-4 md:py-4 md:px-6 text-left md:text-center">
+                    <div className="flex justify-between items-center md:justify-center">
+                        <span className="font-semibold text-gray-600 md:hidden text-sm bg-gray-100 px-2 py-1 rounded">Nhóm:</span>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                            {mainCategoryMap[category.mainCategory]}
+                        </span>
+                    </div>
+                </td>
+
+                <td className="block md:table-cell py-4 px-4 md:py-4 md:px-6 md:text-right border-t md:border-t-0 border-gray-50 mt-2 md:mt-0">
+                  <div className="flex justify-end gap-2">
+                    <Button 
+                        onClick={() => handleEdit(category)} 
+                        variant="outline" 
+                        size="sm"
+                        className="flex items-center gap-1"
+                    >
+                      <Pencil size={14} /> <span className="md:hidden lg:inline">Sửa</span>
+                    </Button>
+                    <Button
+                      onClick={() => handleDelete(category.id)}
+                      variant="destructive"
+                      size="sm"
+                      className="flex items-center gap-1"
+                    >
+                      <Trash2 size={14} /> <span className="md:hidden lg:inline">Xóa</span>
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        
+        {categories.length === 0 && !isLoading && (
+            <div className="text-center py-12 text-gray-500 flex flex-col items-center">
+                <List size={48} className="text-gray-300 mb-3" />
+                <p>Chưa có danh mục nào được tạo.</p>
+            </div>
+        )}
+      </div>
     </div>
   );
 };

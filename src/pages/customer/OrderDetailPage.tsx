@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { customerApi } from './api';
 import type { OrderDto } from '@/types/order';
 import { OrderStatus, PaymentStatus } from '@/types/order';
+import { MapPin, Calendar, CreditCard, Package, ArrowLeft, Truck } from 'lucide-react';
 
 const OrderDetailPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -33,7 +34,6 @@ const OrderDetailPage = () => {
     setIsPaying(true);
     try {
       const { paymentUrl } = await customerApi.createPaymentUrl(order);
-      console.log(order)
       if (paymentUrl) {
         window.location.href = paymentUrl;
       }
@@ -44,65 +44,149 @@ const OrderDetailPage = () => {
   };
 
   if (isLoading) {
-    return <div className="p-8 text-center">Đang tải chi tiết đơn hàng...</div>;
+    return (
+        <div className="min-h-[60vh] flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+    );
   }
 
   if (!order) {
-    return <div className="p-8 text-center">Không tìm thấy đơn hàng.</div>;
+    return (
+        <div className="min-h-[60vh] flex flex-col items-center justify-center text-gray-500">
+            <Package size={48} className="mb-4 opacity-50"/>
+            <p>Không tìm thấy đơn hàng.</p>
+            <Link to="/profile/orders" className="mt-4 text-blue-600 hover:underline">Quay lại danh sách</Link>
+        </div>
+    );
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Chi tiết đơn hàng #{order.id.substring(0, 8)}</h1>
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div className="container mx-auto px-4 py-6 md:py-8 max-w-4xl">
+      <div className="flex items-center gap-2 mb-6">
+        <Link to="/profile/orders" className="text-gray-500 hover:text-gray-800 transition-colors">
+            <ArrowLeft size={20} />
+        </Link>
+        <h1 className="text-xl md:text-2xl font-bold text-gray-800">
+            Chi tiết đơn hàng #{order.id.substring(0, 8).toUpperCase()}
+        </h1>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="p-4 md:p-6 border-b border-gray-100 bg-gray-50/50">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                <div>
+                    <p className="text-sm text-gray-500 mb-1">Ngày đặt hàng</p>
+                    <div className="flex items-center font-medium text-gray-900">
+                        <Calendar size={16} className="mr-2 text-gray-400" />
+                        {new Date(order.orderDate).toLocaleDateString('vi-VN', {
+                            hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric'
+                        })}
+                    </div>
+                </div>
+                <div className="flex flex-col md:items-end">
+                    <p className="text-sm text-gray-500 mb-1">Tổng cộng</p>
+                    <p className="text-xl font-bold text-blue-600">{order.totalPrice.toLocaleString('vi-VN')} ₫</p>
+                </div>
+            </div>
+        </div>
+
+        <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12">
           <div>
-            <h3 className="font-semibold mb-2">Thông tin giao hàng</h3>
-            <p>{order.customerName}</p>
-            <p>{order.phoneNumber}</p>
-            <p>{order.shippingAddress}</p>
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4 flex items-center">
+                <MapPin size={16} className="mr-2 text-blue-600" /> Địa chỉ giao hàng
+            </h3>
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                <p className="font-medium text-gray-900 mb-1">{order.customerName}</p>
+                <p className="text-gray-600 text-sm mb-2">{order.phoneNumber}</p>
+                <p className="text-gray-600 text-sm leading-relaxed">{order.shippingAddress}</p>
+            </div>
           </div>
+          
           <div>
-            <h3 className="font-semibold mb-2">Thông tin đơn hàng</h3>
-            <p>Ngày đặt: {new Date(order.orderDate).toLocaleDateString('vi-VN')}</p>
-            <p>Trạng thái: {OrderStatus[order.status]}</p>
-            <p>Thanh toán: {PaymentStatus[order.paymentStatus]}</p>
-            <p className="font-bold">Tổng tiền: {order.totalPrice.toLocaleString('vi-VN')} ₫</p>
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4 flex items-center">
+                <CreditCard size={16} className="mr-2 text-blue-600" /> Thông tin thanh toán
+            </h3>
+            <div className="space-y-3">
+                <div className="flex justify-between items-center border-b border-gray-100 pb-2">
+                    <span className="text-gray-500 text-sm">Trạng thái đơn hàng</span>
+                    <span className="font-medium px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs">
+                        {OrderStatus[order.status]}
+                    </span>
+                </div>
+                <div className="flex justify-between items-center border-b border-gray-100 pb-2">
+                    <span className="text-gray-500 text-sm">Trạng thái thanh toán</span>
+                    <span className={`font-medium px-2 py-1 rounded text-xs ${
+                        order.paymentStatus === PaymentStatus.Paid 
+                        ? 'bg-green-50 text-green-700' 
+                        : 'bg-yellow-50 text-yellow-700'
+                    }`}>
+                        {PaymentStatus[order.paymentStatus]}
+                    </span>
+                </div>
+                <div className="flex justify-between items-center pt-1">
+                    <span className="text-gray-500 text-sm">Phương thức vận chuyển</span>
+                    <span className="flex items-center text-sm font-medium text-gray-700">
+                        <Truck size={14} className="mr-1" /> Tiêu chuẩn
+                    </span>
+                </div>
+            </div>
           </div>
         </div>
 
-        <h3 className="font-semibold mb-4 border-t pt-4">Các sản phẩm</h3>
-        <div className="space-y-4">
-          {order.items.map((item) => (
-            <div key={item.id} className="flex items-center">
-              <img
-                src={item.productVariantSnapshotImageUrl}
-                alt={item.productSnapshotName}
-                className="w-16 h-16 object-cover rounded-md mr-4"
-              />
-              <div className="flex-grow">
-                <p className="font-semibold">{item.productSnapshotName}</p>
-                <p className="text-sm text-gray-500">
-                  {item.productVariantSnapshotColor}, {item.productVariantSnapshotSize}
-                </p>
-                <p className="text-sm text-gray-500">Số lượng: {item.quantity}</p>
-              </div>
-              <p className="font-semibold">
-                {(item.unitPrice * item.quantity).toLocaleString('vi-VN')} ₫
-              </p>
+        <div className="border-t border-gray-100">
+            <div className="bg-gray-50/50 px-4 py-3 md:px-6 border-b border-gray-100">
+                <h3 className="font-semibold text-gray-900 flex items-center">
+                    <Package size={18} className="mr-2 text-blue-600" /> Sản phẩm ({order.items.length})
+                </h3>
             </div>
-          ))}
+            <div className="divide-y divide-gray-100">
+                {order.items.map((item) => (
+                    <div key={item.id} className="p-4 md:p-6 flex gap-4">
+                        <div className="w-20 h-20 flex-shrink-0 rounded-md border border-gray-200 overflow-hidden bg-white">
+                            <img
+                                src={item.productVariantSnapshotImageUrl}
+                                alt={item.productSnapshotName}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                        <div className="flex-grow flex flex-col md:flex-row md:justify-between md:items-start gap-2">
+                            <div>
+                                <p className="font-medium text-gray-900 line-clamp-2">{item.productSnapshotName}</p>
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Phân loại: {item.productVariantSnapshotColor}, {item.productVariantSnapshotSize}
+                                </p>
+                                <p className="text-sm text-gray-500 mt-1">x{item.quantity}</p>
+                            </div>
+                            <div className="text-right mt-1 md:mt-0">
+                                <p className="font-semibold text-blue-600">
+                                    {(item.unitPrice * item.quantity).toLocaleString('vi-VN')} ₫
+                                </p>
+                                <p className="text-xs text-gray-400 mt-1">
+                                    {item.unitPrice.toLocaleString('vi-VN')} ₫ / cái
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
 
         {order.paymentStatus === PaymentStatus.Unpaid && (
-          <div className="mt-6 border-t pt-6 text-right">
-            <button
-              onClick={handlePayNow}
-              disabled={isPaying}
-              className="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
-            >
-              {isPaying ? 'Đang xử lý...' : 'Thanh toán ngay'}
-            </button>
+          <div className="p-4 md:p-6 border-t border-gray-100 bg-gray-50">
+            <div className="flex flex-col md:flex-row justify-end items-center gap-4">
+                <div className="text-sm text-gray-500 hidden md:block">
+                    Đơn hàng chưa được thanh toán
+                </div>
+                <button
+                onClick={handlePayNow}
+                disabled={isPaying}
+                className="w-full md:w-auto bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md transition-colors flex items-center justify-center"
+                >
+                <CreditCard size={18} className="mr-2" />
+                {isPaying ? 'Đang chuyển hướng...' : 'Thanh toán ngay'}
+                </button>
+            </div>
           </div>
         )}
       </div>
